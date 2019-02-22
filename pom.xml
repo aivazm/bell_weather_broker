@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>admin_api</module>
+        <module>yahoo_service</module>
+        <module>db_service</module>
+        <module>weather_service</module>
+        <module>common_model</module>
+    </modules>
+
+    <groupId>bell.weatherbroker</groupId>
+    <artifactId>bell_weather_broker</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>WEATHER-BROKER</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporing.outputEncoding>UTF-8</project.reporing.outputEncoding>
+
+        <spring-context.version>5.1.5.RELEASE</spring-context.version>
+        <spring-jdbc.version>5.1.5.RELEASE</spring-jdbc.version>
+        <commons-dbcp2.version>2.5.0</commons-dbcp2.version>
+        <spring-orm.version>5.1.5.RELEASE</spring-orm.version>
+        <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <cdi-api.version>2.0.SP1</cdi-api.version>
+        <apache.httpclient.version>4.5.7</apache.httpclient.version>
+        <apache.httpcore.version>4.4.11</apache.httpcore.version>
+        <jackson.core.version>2.9.8</jackson.core.version>
+        <hibernate-core.version>5.4.1.Final</hibernate-core.version>
+        <activemq-client.version>5.15.8</activemq-client.version>
+
+        <junit.version>4.12</junit.version>
+        <mockito.version>2.8.47</mockito.version>
+
+        <lombok.version>1.18.6</lombok.version>
+        <postgres.version>42.2.5</postgres.version>
+        <javax-jms.version>2.0.1</javax-jms.version>
+        <javax.ejb-api.version>3.2</javax.ejb-api.version>
+        <jboss-jms-api_2.0_spec.version>1.0.2.Final</jboss-jms-api_2.0_spec.version>
+        <jvm.target>1.8</jvm.target>
+
+        <jacoco.version>0.8.1</jacoco.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--UTILS-->
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax-jms.version}</version>
+            </dependency>
+            <!--TEST-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.wildfly.plugins</groupId>
+                    <artifactId>wildfly-maven-plugin</artifactId>
+                    <version>2.0.1.Final</version>
+                    <configuration>
+                        <hostname>localhost</hostname>
+                        <port>9991</port>
+                        <username>postgres</username>
+                        <password>1</password>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <source>${jvm.target}</source>
+                        <target>${jvm.target}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                            <propertyName>jacoco.arg</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
