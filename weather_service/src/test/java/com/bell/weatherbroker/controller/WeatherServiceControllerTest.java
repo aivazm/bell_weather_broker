@@ -44,6 +44,5 @@ public class WeatherServiceControllerTest {
     public void getWeatherJsonException() {
         when(transmitter.getWeather(CITY.toLowerCase())).thenReturn(null);
         controller.getWeatherJson(model,CITY);
-//        verify(model).addAttribute(CITY,view);
     }
 }

@@ -15,6 +15,8 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.RequestScoped;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -64,6 +66,7 @@ public class YahooServiceImpl implements YahooService {
                 URLEncoder.encode(parametersList.toString(), "UTF-8");
 
         String signature;
+
         try {
             SecretKeySpec signingKey = new SecretKeySpec((CONSUMER_SECRET + "&").getBytes(), "HmacSHA1");
             Mac mac = Mac.getInstance("HmacSHA1");
@@ -71,7 +74,7 @@ public class YahooServiceImpl implements YahooService {
             byte[] rawHMAC = mac.doFinal(signatureString.getBytes());
             Base64.Encoder encoder = Base64.getEncoder();
             signature = encoder.encodeToString(rawHMAC);
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.warn("Unable to append signature: ", e);
             throw new RuntimeException("Unable to append signature: ", e);
         }
@@ -105,13 +108,13 @@ public class YahooServiceImpl implements YahooService {
             return null;
         }
 
-        WeatherView weatherView = new WeatherView();
-        weatherView.setCity(yahooWeather.getLocation().getCity().toLowerCase());
-        weatherView.setCountry(yahooWeather.getLocation().getCountry().toLowerCase());
-        weatherView.setWindSpeed(yahooWeather.getCurrentObservation().getWind().getSpeed());
-        weatherView.setCondition(yahooWeather.getCurrentObservation().getCondition().getText().toLowerCase());
-        weatherView.setTemperature(yahooWeather.getCurrentObservation().getCondition().getTemperature());
-        return weatherView;
-
+        return WeatherView
+                .builder()
+                .city(yahooWeather.getLocation().getCity().toLowerCase())
+                .country(yahooWeather.getLocation().getCountry().toLowerCase())
+                .windSpeed(yahooWeather.getCurrentObservation().getWind().getSpeed())
+                .condition(yahooWeather.getCurrentObservation().getCondition().getText().toLowerCase())
+                .temperature(yahooWeather.getCurrentObservation().getCondition().getTemperature())
+                .build();
     }
 }

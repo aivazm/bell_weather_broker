@@ -32,6 +32,7 @@ public class WeatherServiceImplTest {
                 .windSpeed(1.0)
                 .temperature(10)
                 .build();
+
         model = Weather.builder()
                 .cityName(view.getCity())
                 .countryName(view.getCountry())

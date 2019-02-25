@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 public class YahooServiceImplTest {
 
     private static final String CITY = "cityName";
-    private static final String APP_ID = "appId";
     private final HttpClient client = mock(HttpClient.class);
     private final HttpGet request = mock(HttpGet.class);
     private HttpResponse response = mock(HttpResponse.class);
@@ -36,6 +35,7 @@ public class YahooServiceImplTest {
                 .windSpeed(1.0)
                 .temperature(10)
                 .build();
+
         when(client.execute(request)).thenReturn(response);
     }
 
@@ -45,9 +45,9 @@ public class YahooServiceImplTest {
         Assert.assertNotNull(view);
     }
 
-    @Test(expected = NoSuchAlgorithmException.class)
-    public void getWeatherFromYahooNoSuchAlgorithmException() throws Exception {
-        when(Mac.getInstance(APP_ID)).thenThrow(Exception.class);
+    @Test(expected = RuntimeException.class)
+    public void getWeatherFromYahooNoSuchAlgorithmException() throws IOException, NoSuchAlgorithmException {
+        when(Mac.getInstance("HmacSHA1")).thenThrow(Exception.class);
         service.getWeatherFromYahoo(CITY);
     }
 

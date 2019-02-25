@@ -31,7 +31,7 @@ public class ReceiverYahoo implements MessageListener {
     private final YahooService yahooService;
     private final Sender sender;
 
-    @Inject
+//    @Inject
     public ReceiverYahoo(YahooService yahooService, Sender sender) {
         this.yahooService = yahooService;
         this.sender = sender;
