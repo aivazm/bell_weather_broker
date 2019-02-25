@@ -1,47 +1,58 @@
 package com.bell.weatherbroker.repository;
 
 import com.bell.weatherbroker.model.Weather;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.logging.Logger;
 
+/**
+ * {@inheritDoc}
+ */
+@Slf4j
 @RequestScoped
 @Transactional
 public class WeatherRepositoryImpl implements WeatherRepository {
-    private static Logger log = Logger.getLogger(WeatherRepositoryImpl.class.getName());
 
-    @PersistenceContext(unitName="weatherPU")
+
     private EntityManager em;
 
-    @Override
-    public void add(Weather model) {
-        em.persist(model);
-        log.info("Запись о погоде в городе "+ model.getCityName() + " добавлена");
+    @PersistenceContext(unitName = "weatherPU")
+    public void setEm(EntityManager em) {
+        this.em = em;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Weather add(Weather weather) {
+        em.persist(weather);
+        log.info("Data on the weather in the city " + weather.getCityName() + " added");
+        return weather;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Weather findByCityName(String cityName) {
-        Weather weather;
-
+        Weather weather = null;
         TypedQuery<Weather> query;
         List<Weather> list;
         query = em.createQuery("select w from Weather w where w.cityName = :city", Weather.class);
         query.setParameter("city", cityName);
         list = query.getResultList();
 
-        if (list.size()==1){
+        if (list.size() == 1) {
             weather = list.get(0);
-        } else if (list.size()>1){
-            list.sort((o1, o2) -> (int) (o2.getId()-o1.getId()));
+        } else if (list.size() > 1) {
+            list.sort((o1, o2) -> (int) (o2.getId() - o1.getId()));
             weather = list.get(0);
-        } else {
-            return null;
         }
         return weather;
     }

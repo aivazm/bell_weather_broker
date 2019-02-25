@@ -3,6 +3,7 @@ package com.bell.weatherbroker.service;
 import bell.commonmodel.model.WeatherView;
 import com.bell.weatherbroker.model.Weather;
 import com.bell.weatherbroker.repository.WeatherRepository;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -10,6 +11,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Set;
 
+/**
+ * {@inheritDoc}
+ */
+@Slf4j
 @RequestScoped
 public class WeatherServiceImpl implements WeatherService {
 
@@ -22,17 +27,21 @@ public class WeatherServiceImpl implements WeatherService {
         this.validator = validator;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void add(WeatherView weatherView) {
-        Weather model = new Weather();
-        model.setCityName(weatherView.getCity());
-        model.setCountryName(weatherView.getCountry());
-        model.setWindSpeed(weatherView.getWindSpeed());
-        model.setCondition(weatherView.getCondition());
-        model.setTemperature(weatherView.getTemperature());
+    public WeatherView add(WeatherView weatherView) {
+        Weather model = Weather
+                .builder()
+                .cityName(weatherView.getCity())
+                .countryName(weatherView.getCountry())
+                .windSpeed(weatherView.getWindSpeed())
+                .condition(weatherView.getCondition())
+                .temperature(weatherView.getTemperature())
+                .build();
 
         StringBuilder message = new StringBuilder();
-
         Set<ConstraintViolation<Weather>> validate = validator.validate(model);
         if (!validate.isEmpty()) {
             for (ConstraintViolation<Weather> violation : validate) {
@@ -41,22 +50,35 @@ public class WeatherServiceImpl implements WeatherService {
             }
         }
         if (message.length() > 0) {
-            throw new RuntimeException("Ошибка валидации "+message.toString().trim());
+            log.warn("Validation error: " + message.toString().trim());
+            throw new RuntimeException("Validation error: " + message.toString().trim());
         }
-        repository.add(model);
+
+        return convertModelToView(repository.add(model));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public WeatherView getWeather(String cityName) {
         Weather model = repository.findByCityName(cityName);
-        WeatherView weatherView = new WeatherView();
-        weatherView.setCity(model.getCityName());
-        weatherView.setCountry(model.getCountryName());
-        weatherView.setWindSpeed(model.getWindSpeed());
-        weatherView.setCondition(model.getCondition());
-        weatherView.setTemperature(model.getTemperature());
 
-        return weatherView;
+        return convertModelToView(model);
     }
 
+    private WeatherView convertModelToView(Weather model) {
+        WeatherView view = null;
+        if (model != null) {
+            view = WeatherView
+                    .builder()
+                    .city(model.getCityName())
+                    .country(model.getCountryName())
+                    .windSpeed(model.getWindSpeed())
+                    .condition(model.getCondition())
+                    .temperature(model.getTemperature())
+                    .build();
+        }
+        return view;
+    }
 }

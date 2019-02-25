@@ -10,11 +10,17 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-
+/**
+ * Файл конфигурации Spring
+ */
 @Configuration
 @ComponentScan("com.bell.weatherbroker.controller")
 public class WebConfig {
 
+    /**
+     * Бин фабрики Hessian Proxy
+     * @return
+     */
     @Bean
     public HessianProxyFactoryBean exporter() {
         HessianProxyFactoryBean factory = new HessianProxyFactoryBean();
@@ -23,11 +29,19 @@ public class WebConfig {
         return factory;
     }
 
+    /**
+     * Бин MappingJackson2JsonView.
+     * @return
+     */
     @Bean
     public View jsonTemplate() {
         return new MappingJackson2JsonView();
     }
 
+    /**
+     * Бин BeanNameViewResolver.
+     * @return
+     */
     @Bean
     public ViewResolver viewResolver() {
         return new BeanNameViewResolver();

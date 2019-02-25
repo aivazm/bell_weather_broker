@@ -7,8 +7,11 @@ import com.caucho.hessian.server.HessianServlet;
 
 import javax.inject.Inject;
 
-public class WeatherTransmitterImpl extends HessianServlet implements WeatherTransmitter {
 
+/**
+ * {@inheritDoc}
+ */
+public class WeatherTransmitterImpl extends HessianServlet implements WeatherTransmitter {
 
     private final WeatherService service;
 
@@ -17,6 +20,9 @@ public class WeatherTransmitterImpl extends HessianServlet implements WeatherTra
         this.service = service;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public WeatherView getWeather(String cityName) {
         return service.getWeather(cityName);

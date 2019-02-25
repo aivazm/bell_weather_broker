@@ -3,6 +3,7 @@ package bell.yahooweather.service;
 import bell.commonmodel.model.WeatherView;
 import bell.yahooweather.dto.YahooWeather;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,16 +21,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 
-
+@Slf4j
 @RequestScoped
 public class YahooServiceImpl implements YahooService {
 
     private static final String APP_ID = "jh65Mv72";
     private static final String CONSUMER_KEY = "dj0yJmk9Y3pZNEVYdTdTMDJWJnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTQ1";
     private static final String CONSUMER_SECRET = "5b00e5641f0cb68a9d05369d5ad40236c1d53aa7";
-    private static Logger log = Logger.getLogger(YahooServiceImpl.class.getName());
 
     public YahooServiceImpl() {
     }
@@ -64,7 +63,7 @@ public class YahooServiceImpl implements YahooService {
                 URLEncoder.encode(url, "UTF-8") + "&" +
                 URLEncoder.encode(parametersList.toString(), "UTF-8");
 
-        String signature = null;
+        String signature;
         try {
             SecretKeySpec signingKey = new SecretKeySpec((CONSUMER_SECRET + "&").getBytes(), "HmacSHA1");
             Mac mac = Mac.getInstance("HmacSHA1");
@@ -73,6 +72,7 @@ public class YahooServiceImpl implements YahooService {
             Base64.Encoder encoder = Base64.getEncoder();
             signature = encoder.encodeToString(rawHMAC);
         } catch (Exception e) {
+            log.warn("Unable to append signature: ", e);
             throw new RuntimeException("Unable to append signature: ", e);
         }
 
@@ -91,12 +91,8 @@ public class YahooServiceImpl implements YahooService {
         request.addHeader("Yahoo-App-Id", APP_ID);
         request.addHeader("Content-Type", "application/json");
 
-        HttpResponse response;
-        try {
-            response = client.execute(request);
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка направлении запроса в yahoo: ", e);
-        }
+        HttpResponse response = client.execute(request);
+
         if (response == null) {
             return null;
         }
@@ -105,7 +101,7 @@ public class YahooServiceImpl implements YahooService {
         YahooWeather yahooWeather = mapper.readValue(entity.getContent(), YahooWeather.class);
 
         if (yahooWeather.getLocation().getCity() == null) {
-            log.info("Населенный пункт " + city + " не найден");
+            log.info("City " + city + " not found");
             return null;
         }
 
