@@ -25,7 +25,7 @@ import javax.jms.MessageListener;
 @Slf4j
 public class DbServiceReceiver implements MessageListener {
 
-    private final WeatherService service;
+    private WeatherService service;
 
     @Inject
     public DbServiceReceiver(WeatherService service) {
@@ -33,7 +33,6 @@ public class DbServiceReceiver implements MessageListener {
     }
 
     public DbServiceReceiver() {
-        service = null;
     }
 
     /**
@@ -42,8 +41,10 @@ public class DbServiceReceiver implements MessageListener {
      */
     public void onMessage(Message rcvMessage) {
         try {
-            WeatherView weatherView = rcvMessage.getBody(WeatherView.class);
-            service.add(weatherView);
+            if (rcvMessage != null) {
+                WeatherView weatherView = rcvMessage.getBody(WeatherView.class);
+                service.add(weatherView);
+            }
         } catch (JMSException e) {
             log.warn("Error while get body from MQ", rcvMessage, e);
             throw new RuntimeException("Error while get body from MQ WeatherToDBQueue: ", e);

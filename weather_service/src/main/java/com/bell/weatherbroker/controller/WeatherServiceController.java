@@ -29,19 +29,26 @@ public class WeatherServiceController {
 
     /**
      * Метод получает данные о погоде по cityName и добавляет в model.
+     *
      * @param model
      * @param cityName
      * @return
      */
     @GetMapping(value = "/weather")
     public String getWeatherJson(Model model, @RequestParam String cityName) {
-        model.addAttribute(cityName, getWeatherView(cityName));
-        return "jsonTemplate";
+        String result = null;
+        if (model == null || cityName == null || cityName.equals("")) {
+            log.info("One or more parameters is null");
+        } else {
+            model.addAttribute(cityName, getWeatherView(cityName));
+            result = "jsonTemplate";
+        }
+        return result;
     }
 
-    private WeatherView getWeatherView(String cityName){
+    private WeatherView getWeatherView(String cityName) {
         WeatherView weatherView = transmitter.getWeather(cityName.toLowerCase());
-        if (weatherView == null){
+        if (weatherView == null) {
             log.warn("City " + cityName + " not found");
             throw new RuntimeException("City " + cityName + " not found");
         } else {

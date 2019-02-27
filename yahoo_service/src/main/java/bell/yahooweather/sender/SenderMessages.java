@@ -15,7 +15,7 @@ import javax.jms.Queue;
 public class SenderMessages implements Sender {
 
     private Queue queue;
-    private final JMSContext context;
+    private JMSContext context;
 
     @Resource(mappedName = "java:jboss/exported/jms/WeatherToDBQueue")
     public void setQueue(Queue queue) {
@@ -27,10 +27,15 @@ public class SenderMessages implements Sender {
         this.context = context;
     }
 
+    public SenderMessages() {
+    }
+
     /**
      * {@inheritDoc}
      */
     public void sendMessage(WeatherView weatherView) {
-        context.createProducer().send(queue, weatherView);
+        if (weatherView != null) {
+            context.createProducer().send(queue, weatherView);
+        }
     }
 }

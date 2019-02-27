@@ -28,18 +28,16 @@ import java.io.IOException;
 @Slf4j
 public class ReceiverYahoo implements MessageListener {
 
-    private final YahooService yahooService;
-    private final Sender sender;
+    private YahooService yahooService;
+    private Sender sender;
 
-//    @Inject
+    @Inject
     public ReceiverYahoo(YahooService yahooService, Sender sender) {
         this.yahooService = yahooService;
         this.sender = sender;
     }
 
     public ReceiverYahoo() {
-        yahooService = null;
-        sender = null;
     }
 
     /**
@@ -50,15 +48,19 @@ public class ReceiverYahoo implements MessageListener {
      * @param rcvMessage
      */
     public void onMessage(Message rcvMessage) {
-        try {
-            String cityName = rcvMessage.getBody(String.class);
-            WeatherView weatherView = yahooService.getWeatherFromYahoo(cityName);
-            if (weatherView != null) {
-                sender.sendMessage(weatherView);
+        if (rcvMessage == null) {
+            log.info("Parameter rcvMessage is null");
+        } else {
+            try {
+                String cityName = rcvMessage.getBody(String.class);
+                WeatherView weatherView = yahooService.getWeatherFromYahoo(cityName);
+                if (weatherView != null) {
+                    sender.sendMessage(weatherView);
+                }
+            } catch (JMSException | IOException e) {
+                log.warn("Error while get body from MQ", rcvMessage, e);
+                throw new RuntimeException("Error while get body from MQ CityWeatherQueue: ", e);
             }
-        } catch (JMSException | IOException e) {
-            log.warn("Error while get body from MQ", rcvMessage, e);
-            throw new RuntimeException("Error while get body from MQ CityWeatherQueue: ", e);
         }
     }
 

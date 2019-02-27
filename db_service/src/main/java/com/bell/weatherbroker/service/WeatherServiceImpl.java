@@ -18,8 +18,8 @@ import java.util.Set;
 @RequestScoped
 public class WeatherServiceImpl implements WeatherService {
 
-    private final WeatherRepository repository;
-    private final Validator validator;
+    private WeatherRepository repository;
+    private Validator validator;
 
     @Inject
     public WeatherServiceImpl(WeatherRepository repository, Validator validator) {
@@ -27,34 +27,42 @@ public class WeatherServiceImpl implements WeatherService {
         this.validator = validator;
     }
 
+    public WeatherServiceImpl() {
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public WeatherView add(WeatherView weatherView) {
-        Weather model = Weather
-                .builder()
-                .cityName(weatherView.getCity())
-                .countryName(weatherView.getCountry())
-                .windSpeed(weatherView.getWindSpeed())
-                .condition(weatherView.getCondition())
-                .temperature(weatherView.getTemperature())
-                .build();
+        Weather model = null;
+        if (weatherView == null){
+            log.info("Parameter weatherView is null");
+        } else {
+            model = Weather
+                    .builder()
+                    .cityName(weatherView.getCity())
+                    .countryName(weatherView.getCountry())
+                    .windSpeed(weatherView.getWindSpeed())
+                    .condition(weatherView.getCondition())
+                    .temperature(weatherView.getTemperature())
+                    .build();
 
-        StringBuilder message = new StringBuilder();
-        Set<ConstraintViolation<Weather>> validate = validator.validate(model);
-        if (!validate.isEmpty()) {
-            for (ConstraintViolation<Weather> violation : validate) {
-                message.append(violation.getMessage());
-                message.append("; ");
+            StringBuilder message = new StringBuilder();
+            Set<ConstraintViolation<Weather>> validate = validator.validate(model);
+            if (!validate.isEmpty()) {
+                for (ConstraintViolation<Weather> violation : validate) {
+                    message.append(violation.getMessage());
+                    message.append("; ");
+                }
+            }
+            if (message.length() > 0) {
+                log.warn("Validation error: " + message.toString().trim());
+                throw new RuntimeException("Validation error: " + message.toString().trim());
             }
         }
-        if (message.length() > 0) {
-            log.warn("Validation error: " + message.toString().trim());
-            throw new RuntimeException("Validation error: " + message.toString().trim());
-        }
 
-        return convertModelToView(repository.add(model));
+            return convertModelToView(repository.add(model));
     }
 
     /**

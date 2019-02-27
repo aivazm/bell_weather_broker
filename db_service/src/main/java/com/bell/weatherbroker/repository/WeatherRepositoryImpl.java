@@ -18,7 +18,6 @@ import java.util.List;
 @Transactional
 public class WeatherRepositoryImpl implements WeatherRepository {
 
-
     private EntityManager em;
 
     @PersistenceContext(unitName = "weatherPU")
@@ -31,9 +30,15 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      */
     @Override
     public Weather add(Weather weather) {
-        em.persist(weather);
-        log.info("Data on the weather in the city " + weather.getCityName() + " added");
-        return weather;
+        if (weather != null) {
+            em.persist(weather);
+            log.info("Data on the weather in the city " + weather.getCityName() + " added");
+            return weather;
+        } else {
+            log.info("Data on the weather has not been added");
+            throw new RuntimeException("Parameter Weather is null");
+        }
+
     }
 
     /**
@@ -42,17 +47,21 @@ public class WeatherRepositoryImpl implements WeatherRepository {
     @Override
     public Weather findByCityName(String cityName) {
         Weather weather = null;
-        TypedQuery<Weather> query;
-        List<Weather> list;
-        query = em.createQuery("select w from Weather w where w.cityName = :city", Weather.class);
-        query.setParameter("city", cityName);
-        list = query.getResultList();
+        if (cityName == null || cityName.equals("")) {
+            log.info("Empty field cityName");
+        } else{
+            TypedQuery<Weather> query;
+            List<Weather> list;
+            query = em.createQuery("select w from Weather w where w.cityName = :city", Weather.class);
+            query.setParameter("city", cityName);
+            list = query.getResultList();
 
-        if (list.size() == 1) {
-            weather = list.get(0);
-        } else if (list.size() > 1) {
-            list.sort((o1, o2) -> (int) (o2.getId() - o1.getId()));
-            weather = list.get(0);
+            if (list.size() == 1) {
+                weather = list.get(0);
+            } else if (list.size() > 1) {
+                list.sort((o1, o2) -> (int) (o2.getId() - o1.getId()));
+                weather = list.get(0);
+            }
         }
         return weather;
     }

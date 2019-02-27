@@ -16,7 +16,7 @@ import javax.jms.Queue;
 public class SenderImpl implements Sender {
 
     private Queue queue;
-    private final JMSContext context;
+    private JMSContext context;
 
     @Resource(mappedName = "java:jboss/exported/jms/CityWeatherQueue")
     public void setQueue(Queue queue) {
@@ -28,12 +28,14 @@ public class SenderImpl implements Sender {
         this.context = context;
     }
 
+    public SenderImpl() {
+    }
 
     /**
      * {@inheritDoc}
      */
     public void sendMessage(String txt) {
-        if (txt.equals("")) {
+        if (txt == null || txt.equals("")) {
             log.warn("Пустое поле cityName");
         } else {
             context.createProducer().send(queue, txt);

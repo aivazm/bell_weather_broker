@@ -37,6 +37,10 @@ public class YahooServiceImpl implements YahooService {
 
     @Override
     public WeatherView getWeatherFromYahoo(String city) throws IOException {
+        if (city==null || city.equals("")){
+            log.info("Parameter city is null or empty");
+            return null;
+        }
         String url = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
         long timestamp = new Date().getTime() / 1000;
         byte[] nonce = new byte[32];
