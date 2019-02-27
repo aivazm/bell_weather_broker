@@ -19,13 +19,14 @@ public class DispatcherInitializer implements WebApplicationInitializer {
      */
     @Override
     public void onStartup(javax.servlet.ServletContext servletContext) {
+        if (servletContext != null) {
+            AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+            context.register(WebConfig.class);
+            context.refresh();
 
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(WebConfig.class);
-        context.refresh();
-
-        ServletRegistration.Dynamic registration = servletContext.addServlet("DispatcherInitializer", new DispatcherServlet(context));
-        registration.setLoadOnStartup(1);
-        registration.addMapping("/*");
+            ServletRegistration.Dynamic registration = servletContext.addServlet("DispatcherInitializer", new DispatcherServlet(context));
+            registration.setLoadOnStartup(1);
+            registration.addMapping("/*");
+        }
     }
 }

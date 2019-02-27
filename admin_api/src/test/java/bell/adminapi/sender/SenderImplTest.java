@@ -42,4 +42,10 @@ public class SenderImplTest {
         sender.sendMessage("");
         Mockito.verify(producer, Mockito.times(0)).send(queue, "");
     }
+
+    @Test
+    public void sendNullMessage() {
+        sender.sendMessage(null);
+        Mockito.verify(producer, Mockito.times(0)).send(queue, "");
+    }
 }

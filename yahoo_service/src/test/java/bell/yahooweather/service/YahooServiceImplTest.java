@@ -59,4 +59,9 @@ public class YahooServiceImplTest {
         Assert.assertNull(response);
     }
 
+    @Test
+    public void getWeatherFromYahooEmptyParameterReturnNull() throws IOException {
+        Assert.assertNull(service.getWeatherFromYahoo(null));
+    }
+
 }

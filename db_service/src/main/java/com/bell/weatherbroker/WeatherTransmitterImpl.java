@@ -4,6 +4,7 @@ import bell.commonmodel.model.WeatherView;
 import bell.commonmodel.remote.WeatherTransmitter;
 import com.bell.weatherbroker.service.WeatherService;
 import com.caucho.hessian.server.HessianServlet;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 /**
  * {@inheritDoc}
  */
+@Slf4j
 public class WeatherTransmitterImpl extends HessianServlet implements WeatherTransmitter {
 
     private final WeatherService service;
@@ -25,6 +27,12 @@ public class WeatherTransmitterImpl extends HessianServlet implements WeatherTra
      */
     @Override
     public WeatherView getWeather(String cityName) {
-        return service.getWeather(cityName);
+        WeatherView view = null;
+        if (cityName == null || cityName.equals("")) {
+            log.info("Parameter cityName is empty");
+        } else {
+            view = service.getWeather(cityName);
+        }
+        return view;
     }
 }

@@ -36,7 +36,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     public WeatherView add(WeatherView weatherView) {
         Weather model = null;
-        if (weatherView == null){
+        if (weatherView == null) {
             log.info("Parameter weatherView is null");
         } else {
             model = Weather
@@ -62,7 +62,7 @@ public class WeatherServiceImpl implements WeatherService {
             }
         }
 
-            return convertModelToView(repository.add(model));
+        return convertModelToView(repository.add(model));
     }
 
     /**

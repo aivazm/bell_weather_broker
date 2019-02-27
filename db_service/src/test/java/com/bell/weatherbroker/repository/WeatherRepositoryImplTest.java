@@ -9,6 +9,7 @@ import javax.persistence.TypedQuery;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +50,20 @@ public class WeatherRepositoryImplTest {
         verify(em).createQuery(QUERY_STRING, Weather.class);
         verify(query).setParameter("city", CITY);
         verify(query).getResultList();
+
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void addException() {
+        repository.add(null);
+        verify(em).persist(model);
+    }
+
+    @Test
+    public void findByCityNameFail() {
+        repository.findByCityName(null);
+        verify(em,times(0)).createQuery(QUERY_STRING, Weather.class);
+
 
     }
 }

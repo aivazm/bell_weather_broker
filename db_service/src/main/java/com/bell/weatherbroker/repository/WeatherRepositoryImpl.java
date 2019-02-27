@@ -48,7 +48,7 @@ public class WeatherRepositoryImpl implements WeatherRepository {
     public Weather findByCityName(String cityName) {
         Weather weather = null;
         if (cityName == null || cityName.equals("")) {
-            log.info("Empty field cityName");
+            log.info("Empty parameter cityName");
         } else{
             TypedQuery<Weather> query;
             List<Weather> list;
