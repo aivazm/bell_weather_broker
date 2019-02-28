@@ -46,7 +46,7 @@ public class YahooServiceImplTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void getWeatherFromYahooNoSuchAlgorithmException() throws IOException, NoSuchAlgorithmException {
+    public void getWeatherFromYahooException() throws NoSuchAlgorithmException, IOException {
         when(Mac.getInstance("HmacSHA1")).thenThrow(Exception.class);
         service.getWeatherFromYahoo(CITY);
     }

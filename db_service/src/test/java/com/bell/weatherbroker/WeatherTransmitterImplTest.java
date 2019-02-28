@@ -16,7 +16,7 @@ public class WeatherTransmitterImplTest {
     private WeatherTransmitterImpl transmitter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         transmitter = new WeatherTransmitterImpl(service);
     }
 

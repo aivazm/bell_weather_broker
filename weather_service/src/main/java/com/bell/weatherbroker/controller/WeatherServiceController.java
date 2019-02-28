@@ -3,6 +3,7 @@ package com.bell.weatherbroker.controller;
 import bell.commonmodel.model.WeatherView;
 import bell.commonmodel.remote.WeatherTransmitter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,8 +38,8 @@ public class WeatherServiceController {
     @GetMapping(value = "/weather")
     public String getWeatherJson(Model model, @RequestParam String cityName) {
         String result = null;
-        if (model == null || cityName == null || cityName.equals("")) {
-            log.info("One or more parameters is null");
+        if (model == null || StringUtils.isBlank(cityName)) {
+            log.info("One or more parameters is null or empty");
         } else {
             model.addAttribute(cityName, getWeatherView(cityName));
             result = "jsonTemplate";
@@ -50,10 +51,8 @@ public class WeatherServiceController {
         WeatherView weatherView = transmitter.getWeather(cityName.toLowerCase());
         if (weatherView == null) {
             log.warn("City " + cityName + " not found");
-            throw new RuntimeException("City " + cityName + " not found");
-        } else {
-            return weatherView;
         }
+        return weatherView;
     }
 
 

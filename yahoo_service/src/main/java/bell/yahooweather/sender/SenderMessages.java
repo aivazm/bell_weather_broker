@@ -1,6 +1,7 @@
 package bell.yahooweather.sender;
 
 import bell.commonmodel.model.WeatherView;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
@@ -11,6 +12,7 @@ import javax.jms.Queue;
 /**
  * {@inheritDoc}
  */
+@Slf4j
 @RequestScoped
 public class SenderMessages implements Sender {
 
@@ -36,6 +38,8 @@ public class SenderMessages implements Sender {
     public void sendMessage(WeatherView weatherView) {
         if (weatherView != null) {
             context.createProducer().send(queue, weatherView);
+        } else {
+            log.info("Parameter weatherView is null");
         }
     }
 }

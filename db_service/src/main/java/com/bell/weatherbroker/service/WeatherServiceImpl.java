@@ -4,6 +4,7 @@ import bell.commonmodel.model.WeatherView;
 import com.bell.weatherbroker.model.Weather;
 import com.bell.weatherbroker.repository.WeatherRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -70,9 +71,14 @@ public class WeatherServiceImpl implements WeatherService {
      */
     @Override
     public WeatherView getWeather(String cityName) {
-        Weather model = repository.findByCityName(cityName);
-
-        return convertModelToView(model);
+        WeatherView view = null;
+        if (StringUtils.isBlank(cityName)){
+            log.info("Parameter cityName is null or empty");
+        }else{
+            Weather model = repository.findByCityName(cityName);
+            view = convertModelToView(model);
+        }
+        return view;
     }
 
     private WeatherView convertModelToView(Weather model) {

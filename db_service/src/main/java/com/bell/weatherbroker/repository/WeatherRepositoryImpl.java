@@ -2,6 +2,7 @@ package com.bell.weatherbroker.repository;
 
 import com.bell.weatherbroker.model.Weather;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
@@ -17,6 +18,8 @@ import java.util.List;
 @RequestScoped
 @Transactional
 public class WeatherRepositoryImpl implements WeatherRepository {
+
+    private static final String QUERY_STRING = "select w from Weather w where w.cityName = :city";
 
     private EntityManager em;
 
@@ -47,12 +50,12 @@ public class WeatherRepositoryImpl implements WeatherRepository {
     @Override
     public Weather findByCityName(String cityName) {
         Weather weather = null;
-        if (cityName == null || cityName.equals("")) {
+        if (StringUtils.isBlank(cityName)) {
             log.info("Empty parameter cityName");
         } else{
             TypedQuery<Weather> query;
             List<Weather> list;
-            query = em.createQuery("select w from Weather w where w.cityName = :city", Weather.class);
+            query = em.createQuery(QUERY_STRING, Weather.class);
             query.setParameter("city", cityName);
             list = query.getResultList();
 

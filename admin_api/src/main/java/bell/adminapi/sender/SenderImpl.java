@@ -1,6 +1,7 @@
 package bell.adminapi.sender;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
@@ -35,7 +36,8 @@ public class SenderImpl implements Sender {
      * {@inheritDoc}
      */
     public void sendMessage(String txt) {
-        if (txt == null || txt.equals("")) {
+
+        if (StringUtils.isBlank(txt)) {
             log.warn("Пустое поле cityName");
         } else {
             context.createProducer().send(queue, txt);
