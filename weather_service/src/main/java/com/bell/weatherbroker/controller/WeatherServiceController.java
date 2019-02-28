@@ -37,20 +37,18 @@ public class WeatherServiceController {
      */
     @GetMapping(value = "/weather")
     public String getWeatherJson(Model model, @RequestParam String cityName) {
-        String result = null;
         if (model == null || StringUtils.isBlank(cityName)) {
-            log.info("One or more parameters is null or empty");
-        } else {
-            model.addAttribute(cityName, getWeatherView(cityName));
-            result = "jsonTemplate";
+            throw new RuntimeException("One or more parameters is null or empty");
         }
-        return result;
+        model.addAttribute(cityName, getWeatherView(cityName));
+        return "jsonTemplate";
+
     }
 
     private WeatherView getWeatherView(String cityName) {
         WeatherView weatherView = transmitter.getWeather(cityName.toLowerCase());
         if (weatherView == null) {
-            log.warn("City " + cityName + " not found");
+            log.info("City {} not found", cityName);
         }
         return weatherView;
     }

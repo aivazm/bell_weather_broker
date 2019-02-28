@@ -33,15 +33,12 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      */
     @Override
     public Weather add(Weather weather) {
-        if (weather != null) {
-            em.persist(weather);
-            log.info("Data on the weather in the city " + weather.getCityName() + " added");
-            return weather;
-        } else {
-            log.info("Data on the weather has not been added");
+        if (weather == null) {
             throw new RuntimeException("Parameter Weather is null");
         }
-
+        em.persist(weather);
+        log.info("Data on the weather in the city " + weather.getCityName() + " added");
+        return weather;
     }
 
     /**
@@ -49,23 +46,22 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      */
     @Override
     public Weather findByCityName(String cityName) {
-        Weather weather = null;
         if (StringUtils.isBlank(cityName)) {
-            log.info("Empty parameter cityName");
-        } else{
-            TypedQuery<Weather> query;
-            List<Weather> list;
-            query = em.createQuery(QUERY_STRING, Weather.class);
-            query.setParameter("city", cityName);
-            list = query.getResultList();
-
-            if (list.size() == 1) {
-                weather = list.get(0);
-            } else if (list.size() > 1) {
-                list.sort((o1, o2) -> (int) (o2.getId() - o1.getId()));
-                weather = list.get(0);
-            }
+            throw new RuntimeException("Empty parameter cityName");
         }
-        return weather;
+        TypedQuery<Weather> query;
+        List<Weather> list;
+        query = em.createQuery(QUERY_STRING, Weather.class);
+        query.setParameter("city", cityName);
+        list = query.getResultList();
+
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.size() > 1) {
+            list.sort((o1, o2) -> (int) (o2.getId() - o1.getId()));
+            return list.get(0);
+        }
+        return null;
+
     }
 }

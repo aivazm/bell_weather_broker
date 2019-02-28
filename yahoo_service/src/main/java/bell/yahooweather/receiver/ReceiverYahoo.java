@@ -49,18 +49,16 @@ public class ReceiverYahoo implements MessageListener {
      */
     public void onMessage(Message rcvMessage) {
         if (rcvMessage == null) {
-            log.info("Parameter rcvMessage is null");
-        } else {
-            try {
-                String cityName = rcvMessage.getBody(String.class);
-                WeatherView weatherView = yahooService.getWeatherFromYahoo(cityName);
-                if (weatherView != null) {
-                    sender.sendMessage(weatherView);
-                }
-            } catch (JMSException | IOException e) {
-                log.warn("Error while get body from MQ", rcvMessage, e);
-                throw new RuntimeException("Error while get body from MQ CityWeatherQueue: ", e);
+            throw new RuntimeException("Parameter rcvMessage is null");
+        }
+        try {
+            String cityName = rcvMessage.getBody(String.class);
+            WeatherView weatherView = yahooService.getWeatherFromYahoo(cityName);
+            if (weatherView != null) {
+                sender.sendMessage(weatherView);
             }
+        } catch (JMSException | IOException e) {
+            throw new RuntimeException("Error while get body from MQ CityWeatherQueue: ", e);
         }
     }
 

@@ -37,10 +37,15 @@ public class SenderImpl implements Sender {
      */
     public void sendMessage(String txt) {
 
+        //if (StringUtils.isBlank(txt)) {
+        //    log.warn("Parameter txt is empty");
+        //} else {
+        //    context.createProducer().send(queue, txt);
+        //}
+
         if (StringUtils.isBlank(txt)) {
-            log.warn("Пустое поле cityName");
-        } else {
-            context.createProducer().send(queue, txt);
+            throw new RuntimeException("Parameter txt is empty");
         }
+        context.createProducer().send(queue, txt);
     }
 }

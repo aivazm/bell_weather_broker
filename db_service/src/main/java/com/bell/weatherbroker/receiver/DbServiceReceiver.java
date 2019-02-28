@@ -42,16 +42,16 @@ public class DbServiceReceiver implements MessageListener {
      */
     public void onMessage(Message rcvMessage) {
         if (rcvMessage == null) {
-            log.info("Parameter rcvMessage is null");
-        } else {
-            try {
-                WeatherView weatherView = rcvMessage.getBody(WeatherView.class);
-                service.add(weatherView);
-            } catch (JMSException e) {
-                log.warn("Error while get body from MQ", rcvMessage, e);
-                throw new RuntimeException("Error while get body from MQ WeatherToDBQueue: ", e);
-            }
+            throw new RuntimeException("Parameter rcvMessage is null");
         }
+        try {
+            WeatherView weatherView = rcvMessage.getBody(WeatherView.class);
+            service.add(weatherView);
+        } catch (JMSException e) {
+            log.warn("Error while get body from MQ", rcvMessage, e);
+            throw new RuntimeException("Error while get body from MQ WeatherToDBQueue: ", e);
+        }
+
     }
 
 }

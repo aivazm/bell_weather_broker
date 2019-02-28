@@ -36,10 +36,9 @@ public class SenderMessages implements Sender {
      * {@inheritDoc}
      */
     public void sendMessage(WeatherView weatherView) {
-        if (weatherView != null) {
-            context.createProducer().send(queue, weatherView);
-        } else {
-            log.info("Parameter weatherView is null");
+        if (weatherView == null) {
+            throw new RuntimeException("Parameter weatherView is null");
         }
+        context.createProducer().send(queue, weatherView);
     }
 }

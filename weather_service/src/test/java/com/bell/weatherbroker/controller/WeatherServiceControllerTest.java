@@ -42,7 +42,6 @@ public class WeatherServiceControllerTest {
 
     @Test(expected = RuntimeException.class)
     public void getWeatherJsonException() {
-        when(transmitter.getWeather(CITY.toLowerCase())).thenReturn(null);
-        controller.getWeatherJson(model,CITY);
+        controller.getWeatherJson(model,null);
     }
 }

@@ -19,7 +19,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -47,63 +46,62 @@ public class YahooServiceImpl implements YahooService {
      * {@inheritDoc}
      */
     @Override
-    public WeatherView getWeatherFromYahoo(String cityName) throws IOException {
+    public WeatherView getWeatherFromYahoo(String cityName) {
         if (StringUtils.isBlank(cityName)) {
-            log.info("Parameter cityName is null or empty");
-            return null;
+            throw new RuntimeException("Parameter cityName is null or empty");
         }
 
-        WeatherView view = null;
-
-        String signature = getSignature(cityName);
-        HttpResponse response = getHttpResponse(cityName, signature);
-
-        if (response != null) {
-            HttpEntity entity = response.getEntity();
-            YahooWeather yahooWeather = mapper.readValue(entity.getContent(), YahooWeather.class);
-            if (yahooWeather.getLocation().getCity() == null) {
-                log.info("City " + cityName + " not found");
-                return null;
-            }
-            view = WeatherView
-                    .builder()
-                    .city(yahooWeather.getLocation().getCity().toLowerCase())
-                    .country(yahooWeather.getLocation().getCountry().toLowerCase())
-                    .windSpeed(yahooWeather.getCurrentObservation().getWind().getSpeed())
-                    .condition(yahooWeather.getCurrentObservation().getCondition().getText().toLowerCase())
-                    .temperature(yahooWeather.getCurrentObservation().getCondition().getTemperature())
-                    .build();
-        }
-
-        return view;
-    }
-
-    private String getSignature(String cityName) throws UnsupportedEncodingException {
         long timestamp = new Date().getTime() / 1000;
         byte[] nonce = new byte[32];
         Random rand = new Random();
         rand.nextBytes(nonce);
         String oauthNonce = new String(nonce).replaceAll("\\W", "");
 
+        String parameters = getParameters(cityName, oauthNonce, timestamp);
+        String signature = getSignature(parameters, oauthNonce, timestamp);
+        YahooWeather yahooWeather = getYahooWeatherData(cityName, signature);
+
+        return WeatherView
+                .builder()
+                .city(yahooWeather.getLocation().getCity().toLowerCase())
+                .country(yahooWeather.getLocation().getCountry().toLowerCase())
+                .windSpeed(yahooWeather.getCurrentObservation().getWind().getSpeed())
+                .condition(yahooWeather.getCurrentObservation().getCondition().getText().toLowerCase())
+                .temperature(yahooWeather.getCurrentObservation().getCondition().getTemperature())
+                .build();
+    }
+
+    private String getParameters(String cityName, String oauthNonce, long timestamp) {
         List<String> parameters = new ArrayList<>();
+        parameters.add("format=json");
+        try {
+            parameters.add("location=" + URLEncoder.encode(cityName, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error while trying to add parameter location : ", e);
+        }
         parameters.add("oauth_consumer_key=" + CONSUMER_KEY);
         parameters.add("oauth_nonce=" + oauthNonce);
         parameters.add("oauth_signature_method=HMAC-SHA1");
         parameters.add("oauth_timestamp=" + timestamp);
         parameters.add("oauth_version=1.0");
-        parameters.add("location=" + URLEncoder.encode(cityName, "UTF-8"));
-        parameters.add("format=json");
         parameters.add("u=c");
-        Collections.sort(parameters);
 
         StringBuilder parametersList = new StringBuilder();
         for (int i = 0; i < parameters.size(); i++) {
             parametersList.append((i > 0) ? "&" : "").append(parameters.get(i));
         }
-        String signatureString = "GET&" +
-                URLEncoder.encode(URL, "UTF-8") + "&" +
-                URLEncoder.encode(parametersList.toString(), "UTF-8");
+        return parametersList.toString();
+    }
 
+    private String getSignature(String parameters, String oauthNonce, long timestamp) {
+        String signatureString;
+        try {
+            signatureString = "GET&" +
+                    URLEncoder.encode(URL, "UTF-8") + "&" +
+                    URLEncoder.encode(parameters, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error while trying to encode parameters : ", e);
+        }
         String signature;
         try {
             SecretKeySpec signingKey = new SecretKeySpec((CONSUMER_SECRET + "&").getBytes(), "HmacSHA1");
@@ -113,10 +111,8 @@ public class YahooServiceImpl implements YahooService {
             Base64.Encoder encoder = Base64.getEncoder();
             signature = encoder.encodeToString(rawHMAC);
         } catch (Exception e) {
-            log.warn("Unable to append signature: ", e);
             throw new RuntimeException("Unable to append signature: ", e);
         }
-
         return "OAuth " +
                 "oauth_consumer_key=\"" + CONSUMER_KEY + "\", " +
                 "oauth_nonce=\"" + oauthNonce + "\", " +
@@ -126,12 +122,28 @@ public class YahooServiceImpl implements YahooService {
                 "oauth_version=\"1.0\"";
     }
 
-    private HttpResponse getHttpResponse(String cityName, String authorizationLine) throws IOException {
+    private YahooWeather getYahooWeatherData(String cityName, String authorizationLine) {
         HttpGet request = new HttpGet(URL + "?location=" + cityName + "&format=json&u=c");
         request.addHeader("Authorization", authorizationLine);
         request.addHeader("Yahoo-App-Id", APP_ID);
         request.addHeader("Content-Type", "application/json");
+        HttpResponse response;
+        try {
+            response = client.execute(request);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while trying to get a HttpResponse: ", e);
+        }
+        YahooWeather yahooWeather;
+        HttpEntity entity = response.getEntity();
+        try {
+            yahooWeather = mapper.readValue(entity.getContent(), YahooWeather.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while trying to get YahooWeather-object : ", e);
+        }
+        if (yahooWeather.getLocation().getCity() == null) {
+            throw new RuntimeException("City not found");
+        }
 
-        return client.execute(request);
+        return yahooWeather;
     }
 }

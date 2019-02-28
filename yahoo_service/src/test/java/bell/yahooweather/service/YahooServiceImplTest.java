@@ -40,13 +40,13 @@ public class YahooServiceImplTest {
     }
 
     @Test
-    public void getWeatherFromYahoo() throws IOException {
+    public void getWeatherFromYahoo() {
         service.getWeatherFromYahoo(CITY);
         Assert.assertNotNull(view);
     }
 
     @Test(expected = RuntimeException.class)
-    public void getWeatherFromYahooException() throws NoSuchAlgorithmException, IOException {
+    public void getWeatherFromYahooException() throws NoSuchAlgorithmException {
         when(Mac.getInstance("HmacSHA1")).thenThrow(Exception.class);
         service.getWeatherFromYahoo(CITY);
     }
@@ -59,9 +59,9 @@ public class YahooServiceImplTest {
         Assert.assertNull(response);
     }
 
-    @Test
-    public void getWeatherFromYahooEmptyParameterReturnNull() throws IOException {
-        Assert.assertNull(service.getWeatherFromYahoo(null));
+    @Test(expected = RuntimeException.class)
+    public void getWeatherFromYahooEmptyParameterReturnNull() {
+        service.getWeatherFromYahoo(null);
     }
 
 }

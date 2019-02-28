@@ -22,7 +22,7 @@ public class SenderImplTest {
 
     private JMSProducer producer = mock(JMSProducer.class);
 
-    private static final String MESSAGE = "MESSAGE";
+    private static final String MESSAGE = "message";
 
     @Before
     public void setUp() {
@@ -37,13 +37,13 @@ public class SenderImplTest {
         Mockito.verify(producer, Mockito.times(1)).send(queue, MESSAGE);
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void sendEmptyMessage() {
         sender.sendMessage("");
         Mockito.verify(producer, Mockito.times(0)).send(queue, "");
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void sendNullMessage() {
         sender.sendMessage(null);
         Mockito.verify(producer, Mockito.times(0)).send(queue, "");

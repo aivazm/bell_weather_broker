@@ -59,11 +59,8 @@ public class WeatherRepositoryImplTest {
         verify(em).persist(model);
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void findByCityNameFail() {
         repository.findByCityName(null);
-        verify(em,times(0)).createQuery(QUERY_STRING, Weather.class);
-
-
     }
 }

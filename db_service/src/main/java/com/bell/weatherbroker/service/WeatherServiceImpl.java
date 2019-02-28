@@ -36,31 +36,28 @@ public class WeatherServiceImpl implements WeatherService {
      */
     @Override
     public WeatherView add(WeatherView weatherView) {
-        Weather model = null;
         if (weatherView == null) {
-            log.info("Parameter weatherView is null");
-        } else {
-            model = Weather
-                    .builder()
-                    .cityName(weatherView.getCity())
-                    .countryName(weatherView.getCountry())
-                    .windSpeed(weatherView.getWindSpeed())
-                    .condition(weatherView.getCondition())
-                    .temperature(weatherView.getTemperature())
-                    .build();
+            throw new RuntimeException("Parameter weatherView is null");
+        }
+        Weather model = Weather
+                .builder()
+                .cityName(weatherView.getCity())
+                .countryName(weatherView.getCountry())
+                .windSpeed(weatherView.getWindSpeed())
+                .condition(weatherView.getCondition())
+                .temperature(weatherView.getTemperature())
+                .build();
 
-            StringBuilder message = new StringBuilder();
-            Set<ConstraintViolation<Weather>> validate = validator.validate(model);
-            if (!validate.isEmpty()) {
-                for (ConstraintViolation<Weather> violation : validate) {
-                    message.append(violation.getMessage());
-                    message.append("; ");
-                }
+        StringBuilder message = new StringBuilder();
+        Set<ConstraintViolation<Weather>> validate = validator.validate(model);
+        if (!validate.isEmpty()) {
+            for (ConstraintViolation<Weather> violation : validate) {
+                message.append(violation.getMessage());
+                message.append("; ");
             }
-            if (message.length() > 0) {
-                log.warn("Validation error: " + message.toString().trim());
-                throw new RuntimeException("Validation error: " + message.toString().trim());
-            }
+        }
+        if (message.length() > 0) {
+            throw new RuntimeException("Validation error: " + message.toString().trim());
         }
 
         return convertModelToView(repository.add(model));
@@ -71,14 +68,11 @@ public class WeatherServiceImpl implements WeatherService {
      */
     @Override
     public WeatherView getWeather(String cityName) {
-        WeatherView view = null;
-        if (StringUtils.isBlank(cityName)){
-            log.info("Parameter cityName is null or empty");
-        }else{
-            Weather model = repository.findByCityName(cityName);
-            view = convertModelToView(model);
+        if (StringUtils.isBlank(cityName)) {
+            throw new RuntimeException("Parameter cityName is null or empty");
         }
-        return view;
+        Weather model = repository.findByCityName(cityName);
+        return convertModelToView(model);
     }
 
     private WeatherView convertModelToView(Weather model) {

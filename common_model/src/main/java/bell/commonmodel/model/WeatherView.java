@@ -16,7 +16,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class WeatherView implements Serializable {
-    private static final long serialVersionUID = 1L;
     private String city;
     private String country;
     private double windSpeed;

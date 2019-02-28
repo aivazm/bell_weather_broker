@@ -41,7 +41,7 @@ public class SenderMessagesTest {
         Mockito.verify(producer, Mockito.times(1)).send(queue, view);
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void sendMessageFail() {
         sender.sendMessage(null);
         Mockito.verify(producer, Mockito.times(0)).send(queue, view);
