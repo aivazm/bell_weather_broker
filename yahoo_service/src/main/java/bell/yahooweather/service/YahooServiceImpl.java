@@ -9,11 +9,13 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -35,9 +37,15 @@ public class YahooServiceImpl implements YahooService {
     private static final String CONSUMER_SECRET = "5b00e5641f0cb68a9d05369d5ad40236c1d53aa7";
     private static final String URL = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
 
+    private HttpClient client;
+    private ObjectMapper mapper;
 
-    private static HttpClient client = HttpClientBuilder.create().build();
-    private static ObjectMapper mapper = new ObjectMapper();
+    @Inject
+    public YahooServiceImpl(@Named(value = "client") HttpClient client,
+                            @Named(value = "mapper")ObjectMapper mapper) {
+        this.client = client;
+        this.mapper = mapper;
+    }
 
     YahooServiceImpl() {
     }

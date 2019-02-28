@@ -36,13 +36,6 @@ public class SenderImpl implements Sender {
      * {@inheritDoc}
      */
     public void sendMessage(String txt) {
-
-        //if (StringUtils.isBlank(txt)) {
-        //    log.warn("Parameter txt is empty");
-        //} else {
-        //    context.createProducer().send(queue, txt);
-        //}
-
         if (StringUtils.isBlank(txt)) {
             throw new RuntimeException("Parameter txt is empty");
         }
