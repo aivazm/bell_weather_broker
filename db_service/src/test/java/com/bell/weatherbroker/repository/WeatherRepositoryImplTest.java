@@ -7,9 +7,7 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,8 +15,10 @@ public class WeatherRepositoryImplTest {
 
     private final EntityManager em = mock(EntityManager.class);
     private static final String CITY = "cityName";
-    private static final String QUERY_STRING = "select w from Weather w where w.cityName = :city";
-    private TypedQuery query = mock(TypedQuery.class);
+    private static final String QUERY_STRING
+            = "select w from Weather w where w.id = (select max(w.id) from w where w.cityName = :city)";
+
+    private TypedQuery<Weather> query = mock(TypedQuery.class);
 
     private Weather model;
     private WeatherRepositoryImpl repository;
@@ -49,7 +49,8 @@ public class WeatherRepositoryImplTest {
         repository.findByCityName(CITY);
         verify(em).createQuery(QUERY_STRING, Weather.class);
         verify(query).setParameter("city", CITY);
-        verify(query).getResultList();
+        verify(query).getSingleResult();
+
 
     }
 
@@ -60,7 +61,7 @@ public class WeatherRepositoryImplTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void findByCityNameFail() {
+    public void findByCityNameNull() {
         repository.findByCityName(null);
     }
 }
